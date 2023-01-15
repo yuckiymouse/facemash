@@ -1,0 +1,19 @@
+{
+    "name": "facemash",
+    "version": "1.0.0",
+    "description": "project with react",
+    "main": "index.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "author": "YUKI",
+    "license": "ISC",
+    "workspaces": [
+        "web",
+        "backend"
+    ],
+    "devDependencies": {
+        "@tsconfig/node16": "^1.0.3"
+    }
+    
+}

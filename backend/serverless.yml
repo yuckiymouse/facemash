@@ -1,0 +1,60 @@
+service: dashboard
+frameworkVersion: "3"
+
+plugins:
+  - serverless-esbuild
+  - serverless-lift
+  # - serverless-offline
+
+provider:
+  name: aws
+  region: us-east-1
+  runtime: nodejs16.x
+  stage: ${opt:stage}
+  httpApi:
+    cors: true
+  environment:
+    STAGE: ${self:provider.stage}
+    TABLE: ${self:service}-${opt:stage}-table
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - dynamodb:Query
+            - dynamodb:Scan
+            - dynamodb:GetItem
+            - dynamodb:PutItem
+            - dynamodb:UpdateItem
+            - dynamodb:DeleteItem
+          Resource:
+            - arn:aws:dynamodb:*:*:table/${self:provider.environment.TABLE}
+            - arn:aws:dynamodb:*:*:table/${self:provider.environment.TABLE}/index/*
+
+  
+constructs:
+  web:
+    type: single-page-app
+    path: "../web/dist"
+    # domain:
+      # - ${self:custom.global.domain.${self:provider.stage}}
+      # - www.${self:custom.global.domain.${self:provider.stage}}
+    # certificate: ${self:custom.global.certificate.${self:provider.stage}}
+
+
+functions:
+  hello:
+    name: ${self:service}-${opt:stage}-hello
+    handler: functions/hello.handler
+    events:
+      - httpApi:
+          path: /hello
+          method: post
+
+resources:
+  Resources:
+    dashboardTable:
+      Type: "AWS::DynamoDB::Table"
+      DeletionPolicy: Retain
+      Properties: ${file(./serverless/table-properties.js)}
+
